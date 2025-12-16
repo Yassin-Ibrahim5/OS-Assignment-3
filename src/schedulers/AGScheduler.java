@@ -40,7 +40,7 @@ public class AGScheduler extends SchedulerBase {
 
             int q = currentProcess.getQuantum();
             int limit25 = (int) Math.ceil(q * 0.25);
-            int limit50 = (int) Math.ceil(q * 0.50);
+            int limit50 = limit25 + limit25;
 
             boolean preempted = false;
 
