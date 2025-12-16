@@ -19,6 +19,7 @@ public class OutputFormatter {
             System.out.println("  Waiting Time: " + p.getWaitingTime());
             System.out.println("  Turnaround Time: " + p.getTurnaroundTime());
             System.out.println("  Completion Time: " + p.getCompletionTime());
+            System.out.println("  Quantum History: " + p.getQuantumHistory());
             System.out.println();
         }
 

@@ -1,5 +1,8 @@
 package models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Process {
     private String name;
     private int arrivalTime;
@@ -10,6 +13,7 @@ public class Process {
     private int waitingTime;
     private int turnaroundTime;
     private int completionTime;
+    private List<Integer> quantumHistory;
 
     public Process(String name, int arrivalTime, int burstTime, int priority, int quantum) {
         this.name = name;
@@ -21,22 +25,48 @@ public class Process {
         this.waitingTime = 0;
         this.turnaroundTime = 0;
         this.completionTime = 0;
+        this.quantumHistory = new ArrayList<>();
+        this.quantumHistory.add(quantum);
     }
 
     // Getters
-    public String getName() { return name; }
-    public int getArrivalTime() { return arrivalTime; }
-    public int getBurstTime() { return burstTime; }
-    public int getRemainingTime() { return remainingTime; }
-    public int getPriority() { return priority; }
-    public int getQuantum() { return quantum; }
-    public int getWaitingTime() { return waitingTime; }
-    public int getTurnaroundTime() { return turnaroundTime; }
-    public int getCompletionTime() { return completionTime; }
+    public String getName() {
+        return name;
+    }
+    public int getArrivalTime() {
+        return arrivalTime;
+    }
+    public int getBurstTime() {
+        return burstTime;
+    }
+    public int getRemainingTime() {
+        return remainingTime;
+    }
+    public int getPriority() {
+        return priority;
+    }
+    public int getQuantum() {
+        return quantum;
+    }
+    public int getWaitingTime() {
+        return waitingTime;
+    }
+    public int getTurnaroundTime() {
+        return turnaroundTime;
+    }
+    public int getCompletionTime() {
+        return completionTime;
+    }
+    public List<Integer> getQuantumHistory() {
+        return quantumHistory;
+    }
 
     // Setters
     public void setRemainingTime(int remainingTime) {
         this.remainingTime = remainingTime;
+    }
+    public void setQuantum(int quantum) {
+        this.quantum = quantum;
     }
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
@@ -47,8 +77,16 @@ public class Process {
     public void setCompletionTime(int completionTime) {
         this.completionTime = completionTime;
     }
+    public void setQuantumHistory(List<Integer> quantumHistory) {
+        this.quantumHistory = quantumHistory;
+    }
 
+
+    public void addQuantumToHistory(int quantum) {
+        quantumHistory.add(quantum);
+    }
     public boolean isComplete() {
         return remainingTime == 0;
     }
+
 }
