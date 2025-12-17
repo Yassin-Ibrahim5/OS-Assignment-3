@@ -5,6 +5,7 @@ import models.Process;
 import java.util.*;
 
 public class AGScheduler extends SchedulerBase {
+    private List<String> executionOrder = new ArrayList<>();
 
     public AGScheduler(List<Process> processes, int contextSwitchTime) {
         super(processes, contextSwitchTime);
@@ -40,11 +41,11 @@ public class AGScheduler extends SchedulerBase {
 
             int q = currentProcess.getQuantum();
             int limit25 = (int) Math.ceil(q * 0.25);
-            int limit50 = limit25 + limit25;
+            int limit50 = limit25 + (int) Math.ceil(q * 0.25);
 
             boolean preempted = false;
 
-            // zone 2: Priority Scheduling [limit25 to limit50]
+            // zone 2: Priority Scheduling [limit25, limit50[
             if (timeByCurrentProcess >= limit25 && timeByCurrentProcess < limit50) {
                 Process bestPriorityProcess = getBestPriorityProcess(readyQueue);
 
@@ -76,6 +77,12 @@ public class AGScheduler extends SchedulerBase {
                 timeByCurrentProcess = 0;
                 currentTime += contextSwitchTime;
                 continue;
+            }
+            if (executionOrder.isEmpty()) {
+                executionOrder.add(currentProcess.getName());
+            }
+            if (!executionOrder.isEmpty() && !executionOrder.getLast().equals(currentProcess.getName())) {
+                executionOrder.add(currentProcess.getName());
             }
 
             currentProcess.setRemainingTime(currentProcess.getRemainingTime() - 1);
@@ -131,5 +138,9 @@ public class AGScheduler extends SchedulerBase {
     private void updateQuantum(Process p, int newQuantum) {
         p.setQuantum(newQuantum);
         p.addQuantumToHistory(newQuantum);
+    }
+
+    public List<String> getExecutionOrder() {
+        return executionOrder;
     }
 }

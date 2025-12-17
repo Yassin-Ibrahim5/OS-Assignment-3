@@ -78,10 +78,21 @@ public class AGTestRunner {
 
         // 3. Parse Expected Results
         Map<String, ExpectedResult> expectedMap = parseExpectedResults(jsonContent);
+        List<String> expectedExecutionOrder = parseExpectedExecutionOrder(jsonContent);
+
+        List<String> actualExecutionOrder = scheduler.getExecutionOrder();
+
+
+        System.out.println("\n--- Execution Order Check ---");
+        System.out.println("Actual:   " + actualExecutionOrder);
+        System.out.println("Expected: " + expectedExecutionOrder);
+
+        boolean orderPassed = actualExecutionOrder.equals(expectedExecutionOrder);
+        System.out.println("Order Status: " + (orderPassed ? "[PASS]" : "[FAIL]"));
 
         // 4. Compare Results
         System.out.println("\n--- Test Results: " + fileName + " ---");
-        boolean allPassed = true;
+        boolean metricsPassed = true;
 
         List<Process> actualProcesses = scheduler.getProcesses();
         actualProcesses.sort(Comparator.comparing(Process::getName));
@@ -102,7 +113,7 @@ public class AGTestRunner {
             boolean histPass = p.getQuantumHistory().equals(exp.quantumHistory);
 
             String status = (waitPass && turnPass && histPass) ? "[PASS]" : "[FAIL]";
-            if (!waitPass || !turnPass || !histPass) allPassed = false;
+            if (!waitPass || !turnPass || !histPass) metricsPassed = false;
 
             System.out.printf("%-5s | %-15s | %-15s | %-30s | %s%n",
                     p.getName(),
@@ -117,7 +128,7 @@ public class AGTestRunner {
             }
         }
         System.out.println("------------------------------------------------------------------------------------------------");
-        if (allPassed) {
+        if (metricsPassed) {
             System.out.println("✅ RESULT: TEST PASSED");
         } else {
             System.out.println("❌ RESULT: TEST FAILED");
@@ -167,6 +178,20 @@ public class AGTestRunner {
             map.put(name, new ExpectedResult(name, wait, turn, hist));
         }
         return map;
+    }
+
+    private static List<String> parseExpectedExecutionOrder(String json) {
+        List<String> order = new ArrayList<>();
+        Pattern p = Pattern.compile("\"executionOrder\"\\s*:\\s*\\[(.*?)]");
+        Matcher m = p.matcher(json);
+        if (m.find()) {
+            String content = m.group(1);
+            String[] elements = content.split(",");
+            for (String element : elements) {
+                order.add(element.trim().replace("\"", ""));
+            }
+        }
+        return order;
     }
 
     static class ExpectedResult {

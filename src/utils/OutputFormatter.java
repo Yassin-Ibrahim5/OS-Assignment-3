@@ -1,6 +1,7 @@
 package utils;
 
 import models.Process;
+import schedulers.AGScheduler;
 import schedulers.SchedulerBase;
 import java.util.*;
 
@@ -20,6 +21,10 @@ public class OutputFormatter {
             System.out.println("  Turnaround Time: " + p.getTurnaroundTime());
             System.out.println("  Completion Time: " + p.getCompletionTime());
             System.out.println("  Quantum History: " + p.getQuantumHistory());
+            if (scheduler instanceof AGScheduler)
+            {
+                System.out.println("  Execution Order: " + ((AGScheduler) scheduler).getExecutionOrder());
+            }
             System.out.println();
         }
 
