@@ -6,38 +6,44 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("CPU Schedulers Simulator\n");
+        while (true) {
 
-        InputParser parser = new InputParser();
+            System.out.println("CPU Schedulers Simulator\n");
 
-        // Get input
-        List<Process> processes = parser.parseProcesses();
-        int rrQuantum = parser.readInt("Round Robin time quantum: ");
-        int contextSwitch = parser.readInt("Context switch time: ");
+            InputParser parser = new InputParser();
 
-        // Menu
-        System.out.println("\n1. Preemptive SJF");
-        System.out.println("2. Round Robin");
-        System.out.println("3. Priority Scheduling");
-        System.out.println("4. AG Scheduling");
-        int choice = parser.readInt("Choose (1-4): ");
+            // Get input
+            List<Process> processes = parser.parseProcesses();
+            int rrQuantum = parser.readInt("Round Robin time quantum: ");
+            int contextSwitch = parser.readInt("Context switch time: ");
 
-        // Run selected scheduler
-        SchedulerBase scheduler = null;
+            // Menu
+            System.out.println("\n1. Preemptive SJF");
+            System.out.println("2. Round Robin");
+            System.out.println("3. Priority Scheduling");
+            System.out.println("4. AG Scheduling");
+            System.out.println("5. exit");
+            int choice = parser.readInt("Choose (1-4): ");
 
-        if (choice == 1) {
-            scheduler = new PreemptiveSJF(processes, contextSwitch);
-        } else if (choice == 2) {
-            scheduler = new RoundRobinScheduler(processes, contextSwitch, rrQuantum);
-        } else if (choice == 3) {
-            scheduler = new PriorityScheduler(processes, contextSwitch);
-        } else if (choice == 4) {
-            scheduler = new AGScheduler(processes, contextSwitch);
-        }
+            // Run selected scheduler
+            SchedulerBase scheduler = null;
 
-        if (scheduler != null) {
-            scheduler.schedule();
-            OutputFormatter.printResults(scheduler);
+            if (choice == 1) {
+                scheduler = new PreemptiveSJF(processes, contextSwitch);
+            } else if (choice == 2) {
+                scheduler = new RoundRobinScheduler(processes, contextSwitch, rrQuantum);
+            } else if (choice == 3) {
+                scheduler = new PriorityScheduler(processes, contextSwitch);
+            } else if (choice == 4) {
+                scheduler = new AGScheduler(processes, contextSwitch);
+            } else if(choice == 5) {
+                break;
+            }
+
+            if (scheduler != null) {
+                scheduler.schedule();
+                OutputFormatter.printResults(scheduler);
+            }
         }
     }
 }
