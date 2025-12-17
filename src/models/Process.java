@@ -28,6 +28,20 @@ public class Process {
         this.quantumHistory.add(quantum);
     }
 
+    public Process(String name, int arrivalTime, int burstTime, int priority, int quantum) {
+        this.name = name;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+        this.priority = priority;
+        this.quantum = quantum;
+        this.waitingTime = 0;
+        this.turnaroundTime = 0;
+        this.completionTime = 0;
+        this.quantumHistory = new ArrayList<>();
+        this.quantumHistory.add(quantum);
+    }
+
     // Getters
     public String getName() {
         return name;

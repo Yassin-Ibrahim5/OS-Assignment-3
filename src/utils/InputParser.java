@@ -26,8 +26,10 @@ public class InputParser {
             int burst = scanner.nextInt();
             System.out.print("Priority: ");
             int priority = scanner.nextInt();
+            System.out.print("Quantum: ");
+            int quantum = scanner.nextInt();
 
-            processes.add(new Process(name, arrival, burst, priority));
+            processes.add(new Process(name, arrival, burst, priority, quantum));
         }
 
         return processes;

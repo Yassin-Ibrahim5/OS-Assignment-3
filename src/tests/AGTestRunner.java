@@ -146,7 +146,7 @@ public class AGTestRunner {
             int burst = Integer.parseInt(m.group(3));
             int priority = Integer.parseInt(m.group(4));
             int quantum = Integer.parseInt(m.group(5));
-            list.add(new Process(name, arrival, burst, priority));
+            list.add(new Process(name, arrival, burst, priority, quantum));
         }
         return list;
     }
