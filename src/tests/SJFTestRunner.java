@@ -27,7 +27,7 @@ public class SJFTestRunner {
             System.out.println("\n========================================");
             System.out.println("SJF Test Runner - Select a Test Case:");
             for (int i = 0; i < testFiles.length; i++) {
-                System.out.println((i + 1) + ". " + testFiles[i]);
+                System.out.println((i + 1) + ". " + testFiles[i].replace("test_cases_v3/Other_Schedulers/", ""));
             }
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");

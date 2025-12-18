@@ -14,7 +14,6 @@ public class AGScheduler extends SchedulerBase {
     @Override
     public void schedule() {
         System.out.println("Running AG Scheduling...");
-        // TODO: Implement AG Scheduling here
         int currentTime = 0;
         int completedProcesses = 0;
         Queue<Process> readyQueue = new LinkedList<>();

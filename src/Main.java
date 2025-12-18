@@ -33,7 +33,8 @@ public class Main {
             } else if (choice == 2) {
                 scheduler = new RoundRobinScheduler(processes, contextSwitch, rrQuantum);
             } else if (choice == 3) {
-                scheduler = new PriorityScheduler(processes, contextSwitch);
+                int agingInterval = parser.readInt("Aging interval: ");
+                scheduler = new PriorityScheduler(processes, contextSwitch, agingInterval);
             } else if (choice == 4) {
                 scheduler = new AGScheduler(processes, contextSwitch);
             } else if(choice == 5) {

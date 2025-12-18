@@ -88,6 +88,9 @@ public class Process {
     public void setQuantum(int quantum) {
         this.quantum = quantum;
     }
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
