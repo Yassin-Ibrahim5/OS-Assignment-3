@@ -14,6 +14,7 @@ public class Process {
     private int turnaroundTime;
     private int completionTime;
     private List<Integer> quantumHistory;
+    private List<String> executionOrder;
 
     public Process(String name, int arrivalTime, int burstTime, int priority) {
         this.name = name;
@@ -21,13 +22,15 @@ public class Process {
         this.burstTime = burstTime;
         this.remainingTime = burstTime;
         this.priority = priority;
+        this.quantum = 0;
         this.waitingTime = 0;
         this.turnaroundTime = 0;
         this.completionTime = 0;
         this.quantumHistory = new ArrayList<>();
-        this.quantumHistory.add(quantum);
+        this.executionOrder = new ArrayList<>();
     }
 
+    // Constructor with quantum for AG Scheduler
     public Process(String name, int arrivalTime, int burstTime, int priority, int quantum) {
         this.name = name;
         this.arrivalTime = arrivalTime;
@@ -39,7 +42,7 @@ public class Process {
         this.turnaroundTime = 0;
         this.completionTime = 0;
         this.quantumHistory = new ArrayList<>();
-        this.quantumHistory.add(quantum);
+        this.executionOrder = new ArrayList<>();
     }
 
     // Getters
@@ -73,6 +76,9 @@ public class Process {
     public List<Integer> getQuantumHistory() {
         return quantumHistory;
     }
+    public List<String> getExecutionOrder() {
+        return executionOrder;
+    }
 
     // Setters
     public void setRemainingTime(int remainingTime) {
@@ -93,7 +99,9 @@ public class Process {
     public void setQuantumHistory(List<Integer> quantumHistory) {
         this.quantumHistory = quantumHistory;
     }
-
+    public void setExecutionOrder(List<String> executionOrder) {
+        this.executionOrder = executionOrder;
+    }
 
     public void addQuantumToHistory(int quantum) {
         quantumHistory.add(quantum);
@@ -101,5 +109,4 @@ public class Process {
     public boolean isComplete() {
         return remainingTime == 0;
     }
-
 }
