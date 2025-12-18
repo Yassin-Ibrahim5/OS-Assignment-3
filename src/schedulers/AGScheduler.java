@@ -46,7 +46,7 @@ public class AGScheduler extends SchedulerBase {
             boolean preempted = false;
 
             // zone 2: Priority Scheduling [limit25, limit50[
-            if (timeByCurrentProcess >= limit25 && timeByCurrentProcess < limit50) {
+            if (timeByCurrentProcess == limit25) {
                 Process bestPriorityProcess = getBestPriorityProcess(readyQueue);
 
                 if (bestPriorityProcess != null && bestPriorityProcess.getPriority() < currentProcess.getPriority()) {
