@@ -1,8 +1,8 @@
 package utils;
 
 import models.Process;
-import schedulers.AGScheduler;
 import schedulers.SchedulerBase;
+import schedulers.PreemptiveSJF;
 import java.util.*;
 
 public class OutputFormatter {
@@ -14,16 +14,21 @@ public class OutputFormatter {
         System.out.println("RESULTS");
         System.out.println("========================================\n");
 
+        // Print execution order if available
+        if (scheduler instanceof PreemptiveSJF) {
+            PreemptiveSJF sjf = (PreemptiveSJF) scheduler;
+            System.out.println("Execution Order: " + sjf.getExecutionOrder());
+            System.out.println();
+        }
+
         // Print each process details
         for (Process p : processes) {
             System.out.println("Process: " + p.getName());
             System.out.println("  Waiting Time: " + p.getWaitingTime());
             System.out.println("  Turnaround Time: " + p.getTurnaroundTime());
             System.out.println("  Completion Time: " + p.getCompletionTime());
-            System.out.println("  Quantum History: " + p.getQuantumHistory());
-            if (scheduler instanceof AGScheduler)
-            {
-                System.out.println("  Execution Order: " + ((AGScheduler) scheduler).getExecutionOrder());
+            if (!p.getQuantumHistory().isEmpty()) {
+                System.out.println("  Quantum History: " + p.getQuantumHistory());
             }
             System.out.println();
         }
@@ -37,8 +42,8 @@ public class OutputFormatter {
             totalTurnaround += p.getTurnaroundTime();
         }
 
-        System.out.println("Average Waiting Time: " + (totalWaiting / processes.size()));
-        System.out.println("Average Turnaround Time: " + (totalTurnaround / processes.size()));
+        System.out.printf("Average Waiting Time: %%n", (totalWaiting / processes.size()));
+        System.out.printf("Average Turnaround Time: %.2f%n", (totalTurnaround / processes.size()));
         System.out.println("========================================\n");
     }
 }
