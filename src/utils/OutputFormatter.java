@@ -42,7 +42,7 @@ public class OutputFormatter {
             totalTurnaround += p.getTurnaroundTime();
         }
 
-        System.out.printf("Average Waiting Time: %%n", (totalWaiting / processes.size()));
+        System.out.printf("Average Waiting Time: %.2f%n", (totalWaiting / processes.size()));
         System.out.printf("Average Turnaround Time: %.2f%n", (totalTurnaround / processes.size()));
         System.out.println("========================================\n");
     }

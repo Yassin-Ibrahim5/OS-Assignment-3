@@ -1,6 +1,3 @@
-// ============================================
-// schedulers/PreemptiveSJF.java
-// ============================================
 package schedulers;
 
 import models.Process;
