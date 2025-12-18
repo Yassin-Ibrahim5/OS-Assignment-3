@@ -14,14 +14,7 @@ public class AGTestRunner {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String[] testFiles = {
-                "AG_test1.json",
-                "AG_test2.json",
-                "AG_test3.json",
-                "AG_test4.json",
-                "AG_test5.json",
-                "AG_test6.json"
-        };
+        String[] testFiles = {"AG_test1.json", "AG_test2.json", "AG_test3.json", "AG_test4.json", "AG_test5.json", "AG_test6.json"};
 
         while (true) {
             System.out.println("\n========================================");
@@ -63,25 +56,19 @@ public class AGTestRunner {
             return;
         }
 
-        // 1. Parse Input Processes
         List<Process> processes = parseProcesses(jsonContent);
         if (processes.isEmpty()) {
             System.out.println("No processes found in JSON.");
             return;
         }
 
-        // 2. Run Scheduler
-        // NOTE: Context Switch is assumed to be 0 for these standard tests
-        // unless specified otherwise in your assignment context.
         AGScheduler scheduler = new AGScheduler(processes, 0);
         scheduler.schedule();
 
-        // 3. Parse Expected Results
         Map<String, ExpectedResult> expectedMap = parseExpectedResults(jsonContent);
         List<String> expectedExecutionOrder = parseExpectedExecutionOrder(jsonContent);
 
         List<String> actualExecutionOrder = scheduler.getExecutionOrder();
-
 
         System.out.println("\n--- Execution Order Check ---");
         System.out.println("Actual:   " + actualExecutionOrder);
@@ -90,15 +77,13 @@ public class AGTestRunner {
         boolean orderPassed = actualExecutionOrder.equals(expectedExecutionOrder);
         System.out.println("Order Status: " + (orderPassed ? "[PASS]" : "[FAIL]"));
 
-        // 4. Compare Results
         System.out.println("\n--- Test Results: " + fileName + " ---");
         boolean metricsPassed = true;
 
         List<Process> actualProcesses = scheduler.getProcesses();
         actualProcesses.sort(Comparator.comparing(Process::getName));
 
-        System.out.printf("%-5s | %-15s | %-15s | %-30s | %s%n",
-                "PID", "Wait Time", "Turnaround", "Quantum History", "Status");
+        System.out.printf("%-5s | %-15s | %-15s | %-30s | %s%n", "PID", "Wait Time", "Turnaround", "Quantum History", "Status");
         System.out.println("------------------------------------------------------------------------------------------------");
 
         for (Process p : actualProcesses) {
@@ -115,20 +100,14 @@ public class AGTestRunner {
             String status = (waitPass && turnPass && histPass) ? "[PASS]" : "[FAIL]";
             if (!waitPass || !turnPass || !histPass) metricsPassed = false;
 
-            System.out.printf("%-5s | %-15s | %-15s | %-30s | %s%n",
-                    p.getName(),
-                    p.getWaitingTime() + " (Exp:" + exp.waitingTime + ")",
-                    p.getTurnaroundTime() + " (Exp:" + exp.turnaroundTime + ")",
-                    p.getQuantumHistory().toString(),
-                    status
-            );
+            System.out.printf("%-5s | %-15s | %-15s | %-30s | %s%n", p.getName(), p.getWaitingTime() + " (Exp:" + exp.waitingTime + ")", p.getTurnaroundTime() + " (Exp:" + exp.turnaroundTime + ")", p.getQuantumHistory().toString(), status);
 
             if (!histPass) {
                 System.out.println("      -> Expected Hist: " + exp.quantumHistory);
             }
         }
         System.out.println("------------------------------------------------------------------------------------------------");
-        if (metricsPassed) {
+        if (metricsPassed && orderPassed) {
             System.out.println("✅ RESULT: TEST PASSED");
         } else {
             System.out.println("❌ RESULT: TEST FAILED");
