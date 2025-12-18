@@ -42,6 +42,7 @@ public class Process {
         this.turnaroundTime = 0;
         this.completionTime = 0;
         this.quantumHistory = new ArrayList<>();
+        this.quantumHistory.add(quantum);
         this.executionOrder = new ArrayList<>();
     }
 
