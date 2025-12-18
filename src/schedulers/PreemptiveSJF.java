@@ -55,14 +55,6 @@ public class PreemptiveSJF extends SchedulerBase {
                 // Add context switch time if switching from different process
                 if (lastSegmentProcess != null) {
                     currentTime += contextSwitchTime;
-
-                    // IMPORTANT: Check for arrivals during context switch
-                    for (Process p : processes) {
-                        if (p.getArrivalTime() <= currentTime && !arrived.contains(p)) {
-                            readyQueue.add(p);
-                            arrived.add(p);
-                        }
-                    }
                 }
 
                 // Now select the shortest job
@@ -82,7 +74,7 @@ public class PreemptiveSJF extends SchedulerBase {
 
                 // Add any processes that arrived at this exact time
                 for (Process p : processes) {
-                    if (p.getArrivalTime() == currentTime && !arrived.contains(p)) {
+                    if (p.getArrivalTime() <= currentTime && !arrived.contains(p)) {
                         readyQueue.add(p);
                         arrived.add(p);
                     }
@@ -94,7 +86,7 @@ public class PreemptiveSJF extends SchedulerBase {
                     completedProcesses++;
                     currentProcess = null;
                 } else {
-                    // Check for preemption after new arrivals
+                    // Check for preemption - if shorter job in queue
                     if (!readyQueue.isEmpty()) {
                         Process shortest = readyQueue.peek();
                         if (shortest.getRemainingTime() < currentProcess.getRemainingTime()) {

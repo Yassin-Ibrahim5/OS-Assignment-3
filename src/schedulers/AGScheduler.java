@@ -80,7 +80,7 @@ public class AGScheduler extends SchedulerBase {
             if (executionOrder.isEmpty()) {
                 executionOrder.add(currentProcess.getName());
             }
-            if (!executionOrder.isEmpty() && !executionOrder.getLast().equals(currentProcess.getName())) {
+            if (!executionOrder.isEmpty() && !executionOrder.get(executionOrder.size() - 1).equals(currentProcess.getName())) {
                 executionOrder.add(currentProcess.getName());
             }
 
