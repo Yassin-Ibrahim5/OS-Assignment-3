@@ -69,6 +69,8 @@ public class PriorityTestRunner {
 
         Map<String, ExpectedResult> expectedResultMap = parsePriorityResults(jsonContent);
         List<String> expectedExecutionOrder = parsePriorityExecutionOrder(jsonContent);
+        double expectedAvgWait = parseExpectedAverage(jsonContent, "averageWaitingTime");
+        double expectedAvgTurn = parseExpectedAverage(jsonContent, "averageTurnaroundTime");
 
         List<String> actualExecutionOrder = scheduler.getExecutionOrder();
 
@@ -98,9 +100,34 @@ public class PriorityTestRunner {
             if (!waitPass || !turnPass) {
                 metricsPassed = false;
             }
-            System.out.printf("%-5s | %-18s | %-18s | %s%n", p.getName(), p.getWaitingTime() + " (Exp:" + expectedResult.waitingTime + ")", p.getTurnaroundTime() + " (Exp:" + expectedResult.turnaroundTime + ")", status);
+            System.out.printf("%-8s | %-10d | %-12d | %-15s | %-15s | %s%n",
+                    p.getName(),
+                    p.getArrivalTime(),
+                    p.getBurstTime(),
+                    p.getWaitingTime() + " (Exp:" + expectedResult.waitingTime + ")",
+                    p.getTurnaroundTime() + " (Exp:" + expectedResult.turnaroundTime + ")",
+                    status
+            );
         }
+
+        double actualAvgWaitTime = actualProcesses.stream()
+                .mapToInt(Process::getWaitingTime)
+                .average()
+                .orElse(0.0);
+
+        double actualAvgTurnaroundTime = actualProcesses.stream()
+                .mapToInt(Process::getTurnaroundTime)
+                .average()
+                .orElse(0.0);
+
         System.out.println("--------------------------------------------------------------------------------");
+        System.out.printf("Average Waiting Time: %.1f (Expected: %.1f) %s%n",
+                actualAvgWaitTime, expectedAvgWait, (Math.abs(actualAvgWaitTime - expectedAvgWait) < 0.1) ? "[PASS]" : "[FAIL]");
+        System.out.printf("Average Turnaround Time: %.1f (Expected: %.1f) %s%n",
+                actualAvgTurnaroundTime, expectedAvgTurn, (Math.abs(actualAvgTurnaroundTime - expectedAvgTurn) < 0.1) ? "[PASS]" : "[FAIL]");
+        if (Math.abs(actualAvgWaitTime - expectedAvgWait) >= 0.1 || Math.abs(actualAvgTurnaroundTime - expectedAvgTurn) >= 0.1) {
+            metricsPassed = false;
+        }
         if (metricsPassed && orderPassed) {
             System.out.println("✅ RESULT: TEST PASSED");
         } else {
@@ -155,6 +182,18 @@ public class PriorityTestRunner {
             }
         }
         return order;
+    }
+
+    private static double parseExpectedAverage(String json, String key) {
+        int priorityStart = json.indexOf("\"Priority\"");
+        if (priorityStart == -1) return 0.0;
+
+        Pattern p = Pattern.compile("\"" + key + "\"\\s*:\\s*([\\d.]+)");
+        Matcher m = p.matcher(json.substring(priorityStart));
+        if (m.find()) {
+            return Double.parseDouble(m.group(1));
+        }
+        return 0.0;
     }
 
     static class ExpectedResult {
