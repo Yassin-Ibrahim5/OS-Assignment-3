@@ -14,13 +14,19 @@ public class AGTestRunner {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String[] testFiles = {"test_cases_v3/AG/AG_test1.json", "test_cases_v3/AG/AG_test2.json", "test_cases_v3/AG/AG_test3.json", "test_cases_v3/AG/AG_test4.json", "test_cases_v3/AG/AG_test5.json", "test_cases_v3/AG/AG_test6.json"};
+        String[] testFiles = {
+                "test_cases/AG/AG_test1.json",
+                "test_cases/AG/AG_test2.json",
+                "test_cases/AG/AG_test3.json",
+                "test_cases/AG/AG_test4.json",
+                "test_cases/AG/AG_test5.json",
+                "test_cases/AG/AG_test6.json"};
 
         while (true) {
             System.out.println("\n========================================");
             System.out.println("Select a Test Case to Run:");
             for (int i = 0; i < testFiles.length; i++) {
-                System.out.println((i + 1) + ". " + testFiles[i].replace("test_cases_v3/AG/", ""));
+                System.out.println((i + 1) + ". " + testFiles[i].replace("test_cases/AG/", ""));
             }
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");

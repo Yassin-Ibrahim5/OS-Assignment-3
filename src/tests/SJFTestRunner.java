@@ -15,19 +15,19 @@ public class SJFTestRunner {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String[] testFiles = {
-                "test_cases_v3/Other_Schedulers/test_1.json",
-                "test_cases_v3/Other_Schedulers/test_2.json",
-                "test_cases_v3/Other_Schedulers/test_3.json",
-                "test_cases_v3/Other_Schedulers/test_4.json",
-                "test_cases_v3/Other_Schedulers/test_5.json",
-                "test_cases_v3/Other_Schedulers/test_6.json"
+                "test_cases/Other_Schedulers/test_1.json",
+                "test_cases/Other_Schedulers/test_2.json",
+                "test_cases/Other_Schedulers/test_3.json",
+                "test_cases/Other_Schedulers/test_4.json",
+                "test_cases/Other_Schedulers/test_5.json",
+                "test_cases/Other_Schedulers/test_6.json"
         };
 
         while (true) {
             System.out.println("\n========================================");
             System.out.println("SJF Test Runner - Select a Test Case:");
             for (int i = 0; i < testFiles.length; i++) {
-                System.out.println((i + 1) + ". " + testFiles[i].replace("test_cases_v3/Other_Schedulers/", ""));
+                System.out.println((i + 1) + ". " + testFiles[i].replace("test_cases/Other_Schedulers/", ""));
             }
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");
