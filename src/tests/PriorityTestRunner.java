@@ -86,7 +86,7 @@ public class PriorityTestRunner {
         List<Process> actualProcesses = scheduler.getProcesses();
         actualProcesses.sort(Comparator.comparing(Process::getName));
 
-        System.out.printf("%-5s | %-18s | %-18s | %s%n", "PID", "Wait Time", "Turnaround", "Status");
+        System.out.printf("%-8s | %-10s | %-12s | %-15s | %-15s | %s%n", "PID", "Arrival", "Burst", "Wait Time", "Turnaround", "Status");
         System.out.println("--------------------------------------------------------------------------------");
 
         for (Process p : actualProcesses) {
