@@ -113,4 +113,18 @@ public class Process {
     public boolean isComplete() {
         return remainingTime == 0;
     }
+    // Add these to your existing Process class
+    private int startTime = -1;
+
+    public boolean hasStarted() {
+        return startTime != -1;
+    }
+
+    public void setStartTime(int time) {
+        if (this.startTime == -1) this.startTime = time;
+    }
+
+    public void executeFor(int units) {
+        this.remainingTime -= units;
+    }
 }
