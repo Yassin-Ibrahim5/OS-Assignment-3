@@ -5,120 +5,187 @@ import models.Process;
 import java.util.*;
 
 public class PriorityScheduler extends SchedulerBase {
+    private static final int HIGHEST_PRIORITY = 1;
 
-    private final int AGING_LIMIT;
+    private final int agingLimit;
     private final List<String> executionOrder = new ArrayList<>();
-    private final Map<Process, Integer> lastAgedTime = new HashMap<>();
+    private final Map<String, Integer> lastAgedTime = new HashMap<>();
 
-    public PriorityScheduler(List<Process> processes, int contextSwitchTime, int agingInterval) {
+    public PriorityScheduler(List<Process> processes, int contextSwitchTime, int agingLimit) {
         super(processes, contextSwitchTime);
-        AGING_LIMIT = agingInterval;
+        this.agingLimit = agingLimit;
+        initializeAgingTracker();
     }
 
     @Override
     public void schedule() {
-        System.out.println("Running Priority Scheduling...");
-        List<Process> readyQueue = new ArrayList<>();
-        List<Process> arrivalList = new ArrayList<>(processes);
-        arrivalList.sort(Comparator.comparingInt(Process::getArrivalTime));
+        System.out.println("Running Priority Scheduling with Aging (Limit: " + agingLimit + ")...");
+
+        Process currentProcess;
+        Process previousProcess = null;
         int currentTime = 0;
-        Process currentProcess = null;
-        String lastProcess = "";
-        int timeInCurrentProcess = 0;
+        int completedCount = 0;
 
-        while (!arrivalList.isEmpty() || !readyQueue.isEmpty() || currentProcess != null) {
-            Iterator<Process> iterator = arrivalList.iterator();
-            while (iterator.hasNext()) {
-                Process process = iterator.next();
-                if (process.getArrivalTime() <= currentTime) {
-                    readyQueue.add(process);
-                    lastAgedTime.put(process, currentTime);
-                    iterator.remove();
-                }
-            }
+        while (completedCount < processes.size()) {
+            Process selectedProcess = selectNextProcess(currentTime, previousProcess);
 
-            if (AGING_LIMIT > 0) {
-                for (Process p : readyQueue) {
-                    Integer lastAged = lastAgedTime.get(p);
-                    if (lastAged != null && currentTime - lastAged >= AGING_LIMIT) {
-                        if (p.getPriority() > 0) {
-                            p.setPriority(p.getPriority() - 1);
-                        }
-                        lastAgedTime.put(p, currentTime);
-                    }
-                }
-            }
-
-            Process bestReady = getBestPriorityProcess(readyQueue);
-
-            if (currentProcess == null) {
-                if (bestReady != null) {
-                    currentProcess = bestReady;
-                    readyQueue.remove(bestReady);
-                    lastAgedTime.remove(currentProcess);
-
-                    if (!lastProcess.isEmpty() && !lastProcess.equals(currentProcess.getName())) {
-                        currentTime += contextSwitchTime;
-                    }
-
-                    executionOrder.add(currentProcess.getName());
-                    lastProcess = currentProcess.getName();
-                    timeInCurrentProcess = 0;
-                }
-            } else {
-                if (bestReady != null && bestReady.getPriority() < currentProcess.getPriority()) {
-                    // Preempt current process
-                    readyQueue.add(currentProcess);
-                    lastAgedTime.put(currentProcess, currentTime);
-                    currentProcess = bestReady;
-                    readyQueue.remove(bestReady);
-                    lastAgedTime.remove(currentProcess);
-
-                    // Context switch for preemption
-                    currentTime += contextSwitchTime;
-
-                    executionOrder.add(currentProcess.getName());
-                    lastProcess = currentProcess.getName();
-                    timeInCurrentProcess = 0;
-                }
-            }
-
-            // Execute current process
-            if (currentProcess != null) {
-                currentProcess.setRemainingTime(currentProcess.getRemainingTime() - 1);
+            if (selectedProcess == null) {
+                handleIdleTime(currentTime);
                 currentTime++;
-                timeInCurrentProcess++;
-
-                if (currentProcess.isComplete()) {
-                    currentProcess.setCompletionTime(currentTime);
-                    currentProcess = null;
-                }
-            } else {
-                // Idle
-                currentTime++;
+                continue;
             }
+
+            if (previousProcess != null && isProcessSwitchRequired(selectedProcess, previousProcess)) {
+                currentTime = performContextSwitch(currentTime);
+                selectedProcess = selectNextProcess(currentTime, previousProcess);
+                if (selectedProcess == null) continue;
+            }
+
+            logExecutionIfNewProcess(selectedProcess, previousProcess);
+            currentProcess = selectedProcess;
+
+            executeProcess(currentProcess, currentTime);
+            currentTime++;
+
+            if (currentProcess.isComplete()) {
+                completeProcess(currentProcess, currentTime);
+                completedCount++;
+            }
+
+            previousProcess = currentProcess;
         }
+
         calculateTimes();
     }
 
-    private Process getBestPriorityProcess(List<Process> queue) {
-        if (queue.isEmpty()) return null;
+    private void initializeAgingTracker() {
+        for (Process process : processes) {
+            lastAgedTime.put(process.getName(), process.getArrivalTime());
+        }
+    }
 
-        Process bestProcess = queue.get(0);
-        for (int i = 1; i < queue.size(); i++) {
-            Process p = queue.get(i);
-            if (p.getPriority() < bestProcess.getPriority()) {
-                bestProcess = p;
-            } else if (p.getPriority() == bestProcess.getPriority()) {
-                if (p.getArrivalTime() < bestProcess.getArrivalTime()) {
-                    bestProcess = p;
-                }
+    private Process selectNextProcess(int currentTime, Process previousProcess) {
+        List<Process> readyProcesses = getReadyProcesses(currentTime);
+
+        if (readyProcesses.isEmpty()) {
+            return null;
+        }
+
+        return findHighestPriorityProcess(readyProcesses);
+    }
+
+    private List<Process> getReadyProcesses(int currentTime) {
+        List<Process> readyProcesses = new ArrayList<>();
+
+        for (Process process : processes) {
+            if (isProcessReady(process, currentTime)) {
+                readyProcesses.add(process);
             }
         }
+
+        return readyProcesses;
+    }
+
+    private boolean isProcessReady(Process process, int currentTime) {
+        return !process.isComplete() && process.getArrivalTime() <= currentTime;
+    }
+
+    private Process findHighestPriorityProcess(List<Process> readyProcesses) {
+        Process bestProcess = null;
+
+        for (Process process : readyProcesses) {
+            if (bestProcess == null || hasHigherPriority(process, bestProcess)) {
+                bestProcess = process;
+            }
+        }
+
         return bestProcess;
     }
 
-    public List<String> getExecutionOrder() {
-        return executionOrder;
+    private boolean hasHigherPriority(Process process1, Process process2) {
+        if (process1.getPriority() < process2.getPriority()) {
+            return true;
+        }
+
+        if (process1.getPriority() == process2.getPriority()) {
+            return process1.getArrivalTime() < process2.getArrivalTime();
+        }
+
+        return false;
     }
+
+    private boolean isProcessSwitchRequired(Process nextProcess, Process previousProcess) {
+        return !nextProcess.getName().equals(previousProcess.getName());
+    }
+
+    private void handleIdleTime(int currentTime) {
+        ageWaitingProcesses(currentTime, null);
+    }
+
+    private int performContextSwitch(int currentTime) {
+        for (int i = 0; i < contextSwitchTime; i++) {
+            currentTime++;
+            ageWaitingProcesses(currentTime, null);
+        }
+        return currentTime;
+    }
+
+    private void logExecutionIfNewProcess(Process currentProcess, Process previousProcess) {
+        if (previousProcess == null || !previousProcess.getName().equals(currentProcess.getName())) {
+            executionOrder.add(currentProcess.getName());
+        }
+    }
+
+    private void executeProcess(Process process, int currentTime) {
+        process.setRemainingTime(process.getRemainingTime() - 1);
+        updateAgingTracker(process, currentTime + 1); // +1 because time increments after execution
+        ageWaitingProcesses(currentTime + 1, process);
+    }
+
+    private void updateAgingTracker(Process process, int currentTime) {
+        lastAgedTime.put(process.getName(), currentTime);
+    }
+
+    private void ageWaitingProcesses(int currentTime, Process runningProcess) {
+        if (agingLimit <= 0) return;
+
+        for (Process process : processes) {
+            if (shouldSkipAging(process, currentTime, runningProcess)) {
+                continue;
+            }
+
+            ageProcessIfNeeded(process, currentTime);
+        }
+    }
+
+    private boolean shouldSkipAging(Process process, int currentTime, Process runningProcess) {
+        return process.isComplete() ||
+                process.getArrivalTime() > currentTime ||
+                (runningProcess != null && process.getName().equals(runningProcess.getName()));
+    }
+
+    private void ageProcessIfNeeded(Process process, int currentTime) {
+        int lastAged = lastAgedTime.getOrDefault(process.getName(), process.getArrivalTime());
+
+        if (currentTime - lastAged >= agingLimit) {
+            increaseProcessPriority(process);
+            lastAgedTime.put(process.getName(), currentTime);
+        }
+    }
+
+    private void increaseProcessPriority(Process process) {
+        if (process.getPriority() > HIGHEST_PRIORITY) {
+            process.setPriority(process.getPriority() - 1);
+        }
+    }
+
+    private void completeProcess(Process process, int completionTime) {
+        process.setCompletionTime(completionTime);
+        lastAgedTime.remove(process.getName());
+    }
+
+    public List<String> getExecutionOrder() {
+        return Collections.unmodifiableList(executionOrder);
+    }
+
 }
