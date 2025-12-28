@@ -5,6 +5,7 @@ import java.util.*;
 
 public class RoundRobinScheduler extends SchedulerBase {
     private int timeQuantum;
+    private List<String> executionOrder = new ArrayList<>();
 
     public RoundRobinScheduler(List<Process> processes, int contextSwitchTime, int timeQuantum) {
         super(processes, contextSwitchTime);
@@ -75,6 +76,14 @@ public class RoundRobinScheduler extends SchedulerBase {
                 processIndex++;
             }
 
+            // Track execution order
+            if (executionOrder.isEmpty()) {
+                executionOrder.add(currentProcess.getName());
+            }
+            if (!executionOrder.isEmpty() && !executionOrder.get(executionOrder.size() - 1).equals(currentProcess.getName())) {
+                executionOrder.add(currentProcess.getName());
+            }
+
             // Execute process for time quantum or remaining time (whichever is smaller)
             int remaining = remainingTime.get(currentProcess.getName());
             int executionTime = Math.min(timeQuantum, remaining);
@@ -109,5 +118,9 @@ public class RoundRobinScheduler extends SchedulerBase {
         calculateTimes();
 
         System.out.println("Round Robin scheduling completed.");
+    }
+
+    public List<String> getExecutionOrder() {
+        return executionOrder;
     }
 }

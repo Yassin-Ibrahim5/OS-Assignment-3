@@ -90,11 +90,23 @@ public class RoundRobinTestRunner {
         RoundRobinScheduler scheduler = new RoundRobinScheduler(processes, contextSwitch, rrQuantum);
         scheduler.schedule();
 
+
         // Parse Expected Results for RR
         Map<String, ExpectedResult> expectedMap = parseExpectedResults(jsonContent);
         List<String> expectedOrder = parseExecutionOrder(jsonContent);
         double expectedAvgWait = parseAverage(jsonContent, "averageWaitingTime");
         double expectedAvgTurn = parseAverage(jsonContent, "averageTurnaroundTime");
+
+        // Get actual execution order
+        List<String> actualExecutionOrder = scheduler.getExecutionOrder();
+
+        // Check execution order first
+        System.out.println("\n--- Execution Order Check ---");
+        System.out.println("Actual:   " + actualExecutionOrder);
+        System.out.println("Expected: " + expectedOrder);
+
+        boolean orderPassed = actualExecutionOrder.equals(expectedOrder);
+        System.out.println("Order Status: " + (orderPassed ? "[PASS]" : "[FAIL]"));
 
         // Compare Results
         System.out.println("\n--- Test Results: Round Robin ---");
@@ -151,12 +163,6 @@ public class RoundRobinTestRunner {
 
         if (Math.abs(avgWait - expectedAvgWait) >= 0.1 || Math.abs(avgTurnaround - expectedAvgTurn) >= 0.1) {
             allPassed = false;
-        }
-
-        // Check execution order if available
-        if (!expectedOrder.isEmpty()) {
-            System.out.println("\nExpected Execution Order: " + expectedOrder);
-            System.out.println("(Note: Verify manually or implement execution tracking)");
         }
 
         System.out.println("------------------------------------------------------------------------------------");
